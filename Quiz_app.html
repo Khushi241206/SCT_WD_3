@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f2f2f2;
+    }
+    #quiz-container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .question {
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
+    .options {
+      margin-bottom: 20px;
+    }
+    .options input {
+      margin-right: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      background: #007bff;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #score {
+      font-size: 22px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div id="quiz-container">
+    <div id="question-box"></div>
+    <button onclick="nextQuestion()">Next</button>
+  </div>
+
+  <script>
+    const quizData = [
+      {
+        type: "single",
+        question: "Which language is used for web development?",
+        options: ["Python", "HTML", "Java", "C++"],
+        answer: "HTML"
+      },
+      {
+        type: "multi",
+        question: "Select all frontend technologies:",
+        options: ["CSS", "JavaScript", "Node.js", "React"],
+        answer: ["CSS", "JavaScript", "React"]
+      },
+      {
+        type: "fill",
+        question: "Fill in the blank: The capital of France is _____.",
+        answer: "Paris"
+      }
+    ];
+
+    let current = 0;
+    let score = 0;
+
+    function renderQuestion() {
+      const box = document.getElementById("question-box");
+      box.innerHTML = "";
+
+      if (current >= quizData.length) {
+        box.innerHTML = `<div id="score">Your score is ${score}/${quizData.length}</div>`;
+        document.querySelector("button").style.display = "none";
+        return;
+      }
+
+      const q = quizData[current];
+      box.innerHTML = `<div class="question">${q.question}</div>`;
+
+      if (q.type === "single") {
+        const optionsHTML = q.options.map(opt =>
+          `<label><input type="radio" name="answer" value="${opt}"> ${opt}</label><br>`
+        ).join("");
+        box.innerHTML += `<div class="options">${optionsHTML}</div>`;
+      } else if (q.type === "multi") {
+        const optionsHTML = q.options.map(opt =>
+          `<label><input type="checkbox" name="answer" value="${opt}"> ${opt}</label><br>`
+        ).join("");
+        box.innerHTML += `<div class="options">${optionsHTML}</div>`;
+      } else if (q.type === "fill") {
+        box.innerHTML += `<input type="text" id="fill-answer" placeholder="Type your answer here" />`;
+      }
+    }
+
+    function nextQuestion() {
+      const q = quizData[current];
+      let correct = false;
+
+      if (q.type === "single") {
+        const selected = document.querySelector('input[name="answer"]:checked');
+        if (selected && selected.value === q.answer) correct = true;
+      } else if (q.type === "multi") {
+        const selected = [...document.querySelectorAll('input[name="answer"]:checked')].map(x => x.value);
+        correct = selected.sort().toString() === q.answer.sort().toString();
+      } else if (q.type === "fill") {
+        const input = document.getElementById("fill-answer").value.trim().toLowerCase();
+        correct = input === q.answer.toLowerCase();
+      }
+
+      if (correct) score++;
+      current++;
+      renderQuestion();
+    }
+
+    renderQuestion();
+  </script>
+</body>
+</html>
